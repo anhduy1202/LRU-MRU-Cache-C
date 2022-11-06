@@ -18,7 +18,7 @@ int least_used = INT_MAX;
 int most_used = INT_MIN;
 float cache_hit = 0;
 float cache_hit_ratio = 0;
-const int DEBUG_MODE = 1; // 1: ON, 0: OFF
+const int DEBUG_MODE = 0; // 1: ON, 0: OFF
 struct CacheEntry *lru_cache;
 struct CacheEntry *mru_cache;
 unsigned long long int fib_lru(int position);
@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
       cache_size = atoi(argv[2]);
       number_of_tests = atoi(argv[3]);
       max_fib_val = atoi(argv[4]);
+      empty_slot = cache_size;
       mru_cache = (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
       run_fib_tests(cache_size, number_of_tests, max_fib_val, &fib_mru);
     } else {
@@ -71,6 +72,7 @@ int main(int argc, char *argv[]) {
       cache_size = atoi(argv[2]);
       number_of_tests = atoi(argv[3]);
       max_fib_val = atoi(argv[4]);
+      empty_slot = cache_size;
       lru_cache = (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
       run_fib_tests(cache_size, number_of_tests, max_fib_val, &fib_lru);
     } else {

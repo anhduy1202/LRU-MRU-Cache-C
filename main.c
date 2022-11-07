@@ -23,20 +23,36 @@ struct CacheEntry *lru_cache;
 struct CacheEntry *mru_cache;
 unsigned long long int fib_lru(int position);
 unsigned long long int fib_mru(int position);
-void run_fib_tests(int cache_size, int number_of_tests, int max_fib_val, unsigned long long (*fib_function)(int));
+void caculate_fib(int cache_size, int number_of_tests, int max_fib_val,
+                  char method[3], unsigned long long (*fib_function)(int));
 
 // helper functions
 void print_slots(struct CacheEntry cache[cache_size]);
-void update_slot(struct CacheEntry cache[cache_size], int index, int position, int call_index,
-                 unsigned long long int fib);
+void update_slot(struct CacheEntry cache[cache_size], int index, int position,
+                 int call_index, unsigned long long int fib);
 
 int main(int argc, char *argv[]) {
   char command = argv[1][1];
   int number_of_tests;
   int max_fib_val;
   cache_size = CACHE_SIZE;
-  printf("command: %c", command);
-  switch (command) {
+  if (argc > 4) {
+    cache_size = atoi(argv[2]);
+    number_of_tests = atoi(argv[3]);
+    max_fib_val = atoi(argv[4]);
+    if (cache_size < 0 || number_of_tests < 0 || max_fib_val < 0) {
+      printf("Invalid arguments, has to be all positive values \n");
+      exit(1);
+    }
+    empty_slot = cache_size;
+    lru_cache =
+        (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
+    mru_cache =
+        (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
+  } else if (argc <= 4 && tolower(command) != 'h') {
+    printf("Not enough arguments, expect 3 but got %d \n", argc - 2);
+  }
+  switch (tolower(command)) {
   case 'h':
     printf("\n Help commands \n \n"
            "-h: print this help \n \n"
@@ -55,36 +71,20 @@ int main(int argc, char *argv[]) {
            "fibonacci value position randomly between 0 to 40 \n \n");
     break;
   case 'm':
-    printf("argc: %d", argc);
-    if (argc > 4) {
-      cache_size = atoi(argv[2]);
-      number_of_tests = atoi(argv[3]);
-      max_fib_val = atoi(argv[4]);
-      empty_slot = cache_size;
-      mru_cache = (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
-      run_fib_tests(cache_size, number_of_tests, max_fib_val, &fib_mru);
-    } else {
-      printf("Not enough arguments \n");
-    }
+    printf("------- MRU CACHE ------- \n \n");
+    caculate_fib(cache_size, number_of_tests, max_fib_val, "mru", &fib_mru);
     break;
   case 'l':
-    if (argc > 4) {
-      cache_size = atoi(argv[2]);
-      number_of_tests = atoi(argv[3]);
-      max_fib_val = atoi(argv[4]);
-      empty_slot = cache_size;
-      lru_cache = (struct CacheEntry *)malloc(cache_size * sizeof(struct CacheEntry));
-      run_fib_tests(cache_size, number_of_tests, max_fib_val, &fib_lru);
-    } else {
-      printf("Not enough arguments \n");
-    }
+    printf("------- LRU CACHE ------- \n \n");
+    caculate_fib(cache_size, number_of_tests, max_fib_val, "lru", &fib_lru);
     break;
   default:
     printf("Invalid command \n");
   }
 }
 
-void run_fib_tests(int cache_size, int number_of_tests, int max_fib_val, unsigned long long (*fib_function)(int)) {
+void caculate_fib(int cache_size, int number_of_tests, int max_fib_val,
+                  char method[3], unsigned long long (*fib_function)(int)) {
   unsigned long long int fib_val = 0;
   if (DEBUG_MODE) {
     int debug_fib = 60;
@@ -95,13 +95,13 @@ void run_fib_tests(int cache_size, int number_of_tests, int max_fib_val, unsigne
     }
     print_slots(lru_cache);
   } else {
+    printf("Method, Cache size, n, fib value, cache hit ratio \n");
     for (int ix = 0; ix < number_of_tests; ix++) {
       int fib_to_get = rand() % max_fib_val;
       fib_val = (*fib_function)(fib_to_get);
       cache_hit_ratio = (cache_hit / cache_usage) * 100;
-      printf("\n Cache size = %d, n = %d, fib value = %llu, %f%% cache hit "
-             "ratio \n ",
-             cache_size, fib_to_get, fib_val, cache_hit_ratio);
+      printf("%s, %d, %d, %llu, %f%% \n", method, cache_size, fib_to_get,
+             fib_val, cache_hit_ratio);
     }
   }
   return;
@@ -159,7 +159,7 @@ unsigned long long int fib_lru(int position) {
         }
         least_recently_used_idx = i;
       }
-      update_slot(lru_cache,i, position, call_index, fib);
+      update_slot(lru_cache, i, position, call_index, fib);
       if (DEBUG_MODE) {
         printf("\n Current cache: \n");
         print_slots(lru_cache);
@@ -175,7 +175,7 @@ unsigned long long int fib_lru(int position) {
              least_recently_used_idx);
     }
     least_used = INT_MAX;
-    update_slot(lru_cache,least_recently_used_idx, position, call_index, fib);
+    update_slot(lru_cache, least_recently_used_idx, position, call_index, fib);
     if (DEBUG_MODE) {
       printf("\n Current cache: \n");
       print_slots(lru_cache);
@@ -263,8 +263,8 @@ unsigned long long int fib_mru(int position) {
 
 // helper function to update the slot with new position, new value, mark as
 // recently used
-void update_slot(struct CacheEntry cache[cache_size], int index, int position, int call_index,
-                 unsigned long long int fib) {
+void update_slot(struct CacheEntry cache[cache_size], int index, int position,
+                 int call_index, unsigned long long int fib) {
   cache[index].last_called_index = call_index;
   cache[index].fib_val = fib;
   cache[index].fib_n = position;

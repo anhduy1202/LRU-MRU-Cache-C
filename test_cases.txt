@@ -1,0 +1,75 @@
+Test Cases
+1. If user provides invalid command, then the program will give an error
+Ex: ./main -e
+Output: Invalid command
+
+2. If user provides upper case h for help command, it should work
+Ex: ./main --H
+
+3. If user don't provide enough arguments for LRU, MRU method, the program will give an error
+Ex:  ./main -l 100 30
+Output: Not enough arguments, expect 3 but got 2
+
+4. If user provides negative arugments, thre program will give an error
+Ex: ./main -l -10 -10 -10
+Output: Invalid arguments, has to be all positive values 
+
+5. The program should prints out the correct fibonacci number despite the method
+Ex: ./main -l 10 5 40
+    ./main -m 10 5 40
+Output:
+  LRU CACHE
+ Cache size = 10, n = 23, fib value = 28657, 47.619049% cache hit ratio 
+ 
+ Cache size = 10, n = 6, fib value = 8, 48.837208% cache hit ratio 
+ 
+ Cache size = 10, n = 17, fib value = 1597, 50.000000% cache hit ratio 
+ 
+ Cache size = 10, n = 35, fib value = 9227465, 50.537636% cache hit ratio 
+ 
+ Cache size = 10, n = 33, fib value = 3524578, 50.769234% cache hit ratio 
+
+  MRU CACHE
+ Cache size = 10, n = 23, fib value = 28657, 49.870129% cache hit ratio 
+ 
+ Cache size = 10, n = 6, fib value = 8, 49.935150% cache hit ratio 
+ 
+ Cache size = 10, n = 17, fib value = 1597, 50.000000% cache hit ratio 
+ 
+ Cache size = 10, n = 35, fib value = 9227465, 50.001057% cache hit ratio 
+ 
+ Cache size = 10, n = 33, fib value = 3524578, 50.000717% cache hit ratio 
+
+6. Cache hit ratio should be very small for small cache size but huge fib number
+Ex: ./main -l 1 10 40
+Cache size = 1, n = 23, fib value = 28657, 0.000000% cache hit ratio 
+ 
+ Cache size = 1, n = 6, fib value = 8, 0.000000% cache hit ratio 
+ 
+ Cache size = 1, n = 17, fib value = 1597, 0.002043% cache hit ratio 
+ 
+ Cache size = 1, n = 35, fib value = 9227465, 0.000013% cache hit ratio 
+ 
+ Cache size = 1, n = 33, fib value = 3524578, 0.000012% cache hit ratio 
+ 
+ Cache size = 1, n = 15, fib value = 610, 0.000012% cache hit ratio 
+ 
+ Cache size = 1, n = 26, fib value = 121393, 0.000018% cache hit ratio 
+ 
+ Cache size = 1, n = 12, fib value = 144, 0.000018% cache hit ratio 
+ 
+ Cache size = 1, n = 9, fib value = 34, 0.000018% cache hit ratio 
+ 
+ Cache size = 1, n = 21, fib value = 10946, 0.000024% cache hit ratio 
+
+7. Cache hit ratio should be almost 100% for large test cases, large cache size 
+Ex: ./main -l 5000 1000 60
+Cache size = 1000, n = 4, fib value = 3, 99.516068% cache hit ratio 
+
+8. MRU cache should have a lower cache hit ratio than LRU cache
+Ex: ./main -l 10 10 40
+    ./main -m 10 10 40
+LRU CACHE
+ Cache size = 10, n = 21, fib value = 10946, 50.609756% cache hit ratio 
+MRU CACHE
+ Cache size = 10, n = 21, fib value = 10946, 50.002438% cache hit ratio 

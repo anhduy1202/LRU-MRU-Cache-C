@@ -261,8 +261,7 @@ unsigned long long int fib_mru(int position) {
   return fib;
 }
 
-// helper function to update the slot with new position, new value, mark as
-// recently used
+// helper function to update the slot with new position, new value, mark as recently used
 void update_slot(struct CacheEntry cache[cache_size], int index, int position,
                  int call_index, unsigned long long int fib) {
   cache[index].last_called_index = call_index;
